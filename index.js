@@ -8,7 +8,8 @@ var path         = require('path');
 var PLUGIN_NAME  = 'gulp-rev-collector';
 
 var defaults = {
-    revSuffix: '-[0-9a-f]{8,10}-?'
+    revSuffix: '-[0-9a-f]{8,10}-?',
+    hashInQuery: false
 };
 
 function _getManifestData(file, opts) {
@@ -28,8 +29,15 @@ function _getManifestData(file, opts) {
         if (_.isObject(json)) {
             var isRev = 1;
             Object.keys(json).forEach(function (key) {
-                if ( !_.isString(json[key]) || path.basename(json[key]).replace(new RegExp( opts.revSuffix ), '' ) !==  path.basename(key) ) {
-                    isRev = 0;
+                if (opts.hashInQuery) {
+                    if (!_.isString(json[key]) || path.basename(json[key]).split('?')[0] !== path.basename(key)) {
+                        isRev = 0;
+                    }
+                }
+                else {
+                    if (!_.isString(json[key]) || path.basename(json[key]).replace(new RegExp(opts.revSuffix), '') !== path.basename(key)) {
+                        isRev = 0;
+                    }
                 }
             });
 
